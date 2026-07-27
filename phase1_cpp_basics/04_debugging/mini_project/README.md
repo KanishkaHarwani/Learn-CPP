@@ -36,7 +36,9 @@ prints a running total. Right now it has at least three bugs:
 - Bug 2 root cause:
 - Bug 3 root cause:
 - Which tool was most useful for each:
-# Mini Project — Bug Hunt
+
+
+# Mini Project — Bug Hunt (Result)
 
 This project combines the debugging techniques learned in this chapter into a single exercise. The program is a simple inventory tracker containing three intentionally introduced bugs: a crash, a memory leak, and a logic error.
 
