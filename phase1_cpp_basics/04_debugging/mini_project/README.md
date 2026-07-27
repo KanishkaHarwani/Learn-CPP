@@ -36,3 +36,163 @@ prints a running total. Right now it has at least three bugs:
 - Bug 2 root cause:
 - Bug 3 root cause:
 - Which tool was most useful for each:
+
+- # Mini Project — Bug Hunt
+
+This project is designed to practice using debugging tools on a slightly larger program containing multiple independent bugs.
+
+---
+
+## Objective
+
+The program implements a small inventory tracker that stores a list of items and their quantities. It intentionally contains three different types of bugs.
+
+Your task is to locate, diagnose, and fix each bug using the appropriate debugging tool.
+
+---
+
+## Program Features
+
+- Stores an inventory of items and quantities.
+- Calculates a running inventory total.
+- Removes stock from an item.
+- Prints inventory information.
+
+---
+
+## Intentional Bugs
+
+### Bug 1 — Crash
+
+Removing more stock than exists results in a negative quantity.
+
+That negative quantity is mistakenly used as an array index, eventually causing an out-of-bounds access and program crash.
+
+**Recommended tool**
+
+- GDB
+
+Commands:
+
+```bash
+g++ -g inventory.cpp -o inventory
+gdb ./inventory
+```
+
+Inside GDB:
+
+```gdb
+run
+backtrace
+```
+
+Record:
+
+- Exact line number
+- Root cause
+
+---
+
+### Bug 2 — Memory Leak
+
+When an item is removed, memory is dynamically allocated but never released.
+
+The program finishes successfully, but memory remains allocated.
+
+**Recommended tool**
+
+Valgrind
+
+```bash
+valgrind --leak-check=full ./inventory
+```
+
+or
+
+AddressSanitizer
+
+```bash
+g++ -g -fsanitize=address inventory.cpp -o inventory
+./inventory
+```
+
+Record:
+
+- Leak report
+- Allocation line
+- Fix
+
+---
+
+### Bug 3 — Wrong Running Total
+
+The program calculates the running total incorrectly.
+
+The program does **not** crash.
+
+Instead, it silently produces an incorrect answer.
+
+Use GDB to step through the calculation until the incorrect value appears.
+
+Useful commands:
+
+```gdb
+break calculateTotal
+run
+next
+print total
+print i
+```
+
+Record:
+
+- Expected total
+- Actual total
+- First incorrect iteration
+- Root cause
+
+---
+
+## After Fixing
+
+Answer the following.
+
+### Bug 1
+
+Root cause:
+
+---
+
+### Bug 2
+
+Root cause:
+
+---
+
+### Bug 3
+
+Root cause:
+
+---
+
+### Which debugging tool was most useful?
+
+| Bug | Tool |
+|------|------|
+| Crash | |
+| Memory Leak | |
+| Wrong Output | |
+
+---
+
+## Learning Objectives
+
+After completing this exercise you should be able to:
+
+- Compile with debugging symbols (`-g`)
+- Use GDB to locate crashes
+- Read a backtrace
+- Step through code with `next`
+- Inspect variables with `print` and `info locals`
+- Detect memory leaks with Valgrind or AddressSanitizer
+- Distinguish between crashes, leaks, and logic errors
