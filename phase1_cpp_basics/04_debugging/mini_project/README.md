@@ -36,27 +36,20 @@ prints a running total. Right now it has at least three bugs:
 - Bug 2 root cause:
 - Bug 3 root cause:
 - Which tool was most useful for each:
+# Mini Project — Bug Hunt
 
-- # Mini Project — Bug Hunt
-
-This project is designed to practice using debugging tools on a slightly larger program containing multiple independent bugs.
-
----
+This project combines the debugging techniques learned in this chapter into a single exercise. The program is a simple inventory tracker containing three intentionally introduced bugs: a crash, a memory leak, and a logic error.
 
 ## Objective
 
-The program implements a small inventory tracker that stores a list of items and their quantities. It intentionally contains three different types of bugs.
-
-Your task is to locate, diagnose, and fix each bug using the appropriate debugging tool.
-
----
+Use the appropriate debugging tools to identify, diagnose, and fix each bug.
 
 ## Program Features
 
-- Stores an inventory of items and quantities.
-- Calculates a running inventory total.
+- Stores a small inventory of items and their quantities.
+- Calculates the total quantity of all items.
 - Removes stock from an item.
-- Prints inventory information.
+- Displays the inventory and running total.
 
 ---
 
@@ -64,44 +57,29 @@ Your task is to locate, diagnose, and fix each bug using the appropriate debuggi
 
 ### Bug 1 — Crash
 
-Removing more stock than exists results in a negative quantity.
+Removing more stock than an item contains results in a crash caused by an invalid array access.
 
-That negative quantity is mistakenly used as an array index, eventually causing an out-of-bounds access and program crash.
-
-**Recommended tool**
-
-- GDB
-
-Commands:
+**Recommended tool:** GDB
 
 ```bash
 g++ -g inventory.cpp -o inventory
 gdb ./inventory
 ```
 
-Inside GDB:
+Useful GDB commands:
 
 ```gdb
 run
 backtrace
 ```
 
-Record:
-
-- Exact line number
-- Root cause
-
 ---
 
 ### Bug 2 — Memory Leak
 
-When an item is removed, memory is dynamically allocated but never released.
+Memory is dynamically allocated while removing an item but is never released.
 
-The program finishes successfully, but memory remains allocated.
-
-**Recommended tool**
-
-Valgrind
+**Recommended tool:** Valgrind (or AddressSanitizer)
 
 ```bash
 valgrind --leak-check=full ./inventory
@@ -109,30 +87,18 @@ valgrind --leak-check=full ./inventory
 
 or
 
-AddressSanitizer
-
 ```bash
 g++ -g -fsanitize=address inventory.cpp -o inventory
 ./inventory
 ```
 
-Record:
-
-- Leak report
-- Allocation line
-- Fix
-
 ---
 
 ### Bug 3 — Wrong Running Total
 
-The program calculates the running total incorrectly.
+The program runs successfully but produces an incorrect total quantity.
 
-The program does **not** crash.
-
-Instead, it silently produces an incorrect answer.
-
-Use GDB to step through the calculation until the incorrect value appears.
+**Recommended tool:** GDB
 
 Useful commands:
 
@@ -144,55 +110,112 @@ print total
 print i
 ```
 
-Record:
+---
 
-- Expected total
-- Actual total
-- First incorrect iteration
-- Root cause
+## Workflow
+
+1. Compile the program with debugging symbols.
+
+   ```bash
+   g++ -g inventory.cpp -o inventory
+   ```
+
+2. Use **GDB** to locate and fix the crash.
+
+3. Use **Valgrind** (or **AddressSanitizer**) to detect and fix the memory leak.
+
+4. Use **GDB** to step through the program and identify the incorrect running total.
+
+5. Verify that all three bugs have been fixed.
 
 ---
 
-## After Fixing
+# Results
 
-Answer the following.
+## Bug 1
 
-### Bug 1
+**Root cause:**
 
-Root cause:
+Removing more stock than available caused the item's quantity to become negative. That negative value was then used as an array index, resulting in an out-of-bounds array access and a crash.
 
----
+**Tool used:**
 
-### Bug 2
+GDB (`run` and `backtrace`)
 
-Root cause:
+**Fix:**
 
----
-
-### Bug 3
-
-Root cause:
+Check that the removal amount does not exceed the available quantity before subtracting, or validate the index before accessing the array.
 
 ---
 
-### Which debugging tool was most useful?
+## Bug 2
 
-| Bug | Tool |
-|------|------|
-| Crash | |
-| Memory Leak | |
-| Wrong Output | |
+**Root cause:**
+
+Memory allocated using `new` for `removedItem` was never released, producing a memory leak.
+
+**Tool used:**
+
+Valgrind (`--leak-check=full`)
+
+**Fix:**
+
+Release the dynamically allocated object with:
+
+```cpp
+delete removedItem;
+```
+
+A modern alternative would be to use `std::unique_ptr`, which automatically manages memory.
+
+---
+
+## Bug 3
+
+**Root cause:**
+
+The running total was calculated incorrectly because the loop added `1` for each inventory item instead of adding the item's quantity.
+
+Incorrect code:
+
+```cpp
+total += 1;
+```
+
+Correct code:
+
+```cpp
+total += inventory[i].quantity;
+```
+
+**Tool used:**
+
+GDB (`break`, `next`, `print`)
+
+**Fix:**
+
+Replace the incorrect increment with the item's quantity.
+
+---
+
+# Summary
+
+| Bug | Tool Used |
+|------|-----------|
+| Crash | GDB |
+| Memory Leak | Valgrind |
+| Wrong Running Total | GDB |
 
 ---
 
 ## Learning Objectives
 
-After completing this exercise you should be able to:
+After completing this exercise, you should be able to:
 
-- Compile with debugging symbols (`-g`)
-- Use GDB to locate crashes
-- Read a backtrace
-- Step through code with `next`
-- Inspect variables with `print` and `info locals`
-- Detect memory leaks with Valgrind or AddressSanitizer
-- Distinguish between crashes, leaks, and logic errors
+- Compile programs with debugging symbols (`-g`).
+- Use GDB to locate crashes with `backtrace`.
+- Step through code using `break`, `next`, and `print`.
+- Inspect variables during execution.
+- Detect memory leaks with Valgrind or AddressSanitizer.
+- Distinguish between runtime crashes, memory leaks, and logic errors.
+- Select the appropriate debugging tool for different categories of bugs.
