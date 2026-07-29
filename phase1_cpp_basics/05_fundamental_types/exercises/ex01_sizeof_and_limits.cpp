@@ -12,9 +12,9 @@ template <typename T>
 void printInfo(const char* name) {
     std::cout << name
               << " | size: " << sizeof(T) << " bytes"
-              << " | min: " << std::numeric_limits<T>::min()
-              << " | max: " << std::numeric_limits<T>::max()
-              << "\n";
+              << " | min: " << +std::numeric_limits<T>::min()
+              << " | max: " << +std::numeric_limits<T>::max()
+              << '\n';
 }
 
 int main() {
